@@ -7,7 +7,7 @@ export class MesasService {
   private mesas: CreateMesaDto[] = [];
 
   create(createMesaDto: CreateMesaDto) {
-    return this.mesas.push(createMesaDto)
+    return this.mesas.push(createMesaDto);
   }
 
   findAll() {
@@ -19,10 +19,11 @@ export class MesasService {
   }
 
   update(id: number, updateMesaDto: UpdateMesaDto) {
-    return `This action updates a #${id} mesa`;
+    this.mesas[id] = { ...this.mesas[id], ...updateMesaDto };
+    return this.mesas[id];
   }
 
   remove(id: number) {
-    return this.mesas.splice(id, 1)
+    return this.mesas.splice(id, 1);
   }
 }
