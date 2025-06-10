@@ -19,8 +19,7 @@ export class MesasService {
   }
 
   update(id: number, updateMesaDto: UpdateMesaDto) {
-    this.mesas[id] = { ...this.mesas[id], ...updateMesaDto };
-    return this.mesas[id];
+    return (this.mesas[id] = { ...this.mesas[id], ...updateMesaDto });
   }
 
   remove(id: number) {
