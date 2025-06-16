@@ -1,28 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { CreateItenDto } from './dto/create-iten.dto';
 import { UpdateItenDto } from './dto/update-iten.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Iten } from './entities/iten.entity';
 
 @Injectable()
 export class ItensService {
-  private itens: CreateItenDto[] = [];
+  constructor(
+    @InjectRepository(Iten)
+    private readonly itenRepository: Repository<Iten>,
+  ) {}
 
-  create(createItenDto: CreateItenDto) {
-    return this.itens.push(createItenDto);
+  async create(createItenDto: CreateItenDto): Promise<Iten> {
+    const iten = this.itenRepository.create(createItenDto);
+    return await this.itenRepository.save(iten);
   }
 
-  findAll() {
-    return this.itens;
+  async findAll(): Promise<Iten[]> {
+    return await this.itenRepository.find();
   }
 
-  findOne(id: number) {
-    return this.itens[id];
+  async findOne(id: number): Promise<Iten | null> {
+    return await this.itenRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateItenDto: UpdateItenDto) {
-    return (this.itens[id] = { ...this.itens[id], ...updateItenDto });
+  async update(id: number, updateItenDto: UpdateItenDto): Promise<Iten | null> {
+    await this.itenRepository.update(id, updateItenDto);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return this.itens.splice(id, 1);
+  async remove(id: number) {
+    await this.itenRepository.delete(id);
   }
 }

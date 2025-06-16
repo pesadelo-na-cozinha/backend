@@ -1,28 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMesaDto } from './dto/create-mesa.dto';
 import { UpdateMesaDto } from './dto/update-mesa.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Mesa } from './entities/mesa.entity';
 
 @Injectable()
 export class MesasService {
-  private mesas: CreateMesaDto[] = [];
+  constructor(
+    @InjectRepository(Mesa)
+    private readonly mesaRepository: Repository<Mesa>,
+  ) {}
 
-  create(createMesaDto: CreateMesaDto) {
-    return this.mesas.push(createMesaDto);
+  async create(createMesaDto: CreateMesaDto): Promise<Mesa> {
+    const mesa = this.mesaRepository.create(createMesaDto);
+    return await this.mesaRepository.save(mesa);
   }
 
-  findAll() {
-    return this.mesas;
+  async findAll(): Promise<Mesa[]> {
+    return await this.mesaRepository.find({ relations: ['pedidos'] });
   }
 
-  findOne(id: number) {
-    return this.mesas[id];
+  async findOne(id: number): Promise<Mesa | null> {
+    return await this.mesaRepository.findOne({
+      where: { id },
+      relations: ['pedidos'],
+    });
   }
 
-  update(id: number, updateMesaDto: UpdateMesaDto) {
-    return (this.mesas[id] = { ...this.mesas[id], ...updateMesaDto });
+  async update(id: number, updateMesaDto: UpdateMesaDto): Promise<Mesa | null> {
+    await this.mesaRepository.update(id, updateMesaDto);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return this.mesas.splice(id, 1);
+  async remove(id: number) {
+    await this.mesaRepository.delete(id);
   }
 }
