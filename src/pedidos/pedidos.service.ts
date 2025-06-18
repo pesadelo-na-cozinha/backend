@@ -4,25 +4,46 @@ import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pedido } from './entities/pedido.entity';
+import { Mesa } from '../mesas/entities/mesa.entity';
 
 @Injectable()
 export class PedidosService {
   constructor(
     @InjectRepository(Pedido)
     private readonly pedidoRepository: Repository<Pedido>,
+    @InjectRepository(Mesa)
+    private readonly mesaRepository: Repository<Mesa>,
   ) {}
 
   async create(createPedidoDto: CreatePedidoDto): Promise<Pedido> {
-    const pedido = this.pedidoRepository.create(createPedidoDto);
+    const mesa = await this.mesaRepository.findOne({
+      where: { id: createPedidoDto.mesa_id },
+    });
+
+    if (!mesa) {
+      throw new Error('Mesa não encontrada');
+    }
+
+    const pedido = this.pedidoRepository.create({
+      data_hora: createPedidoDto.data_hora,
+      mesa_id: createPedidoDto.mesa_id,
+      mesa: mesa,
+    });
+
     return await this.pedidoRepository.save(pedido);
   }
 
   async findAll(): Promise<Pedido[]> {
-    return await this.pedidoRepository.find();
+    return await this.pedidoRepository.find({
+      relations: ['mesa', 'itens'],
+    });
   }
 
   async findOne(id: number): Promise<Pedido | null> {
-    return await this.pedidoRepository.findOne({ where: { id } });
+    return await this.pedidoRepository.findOne({
+      where: { id },
+      relations: ['mesa', 'itens'],
+    });
   }
 
   async update(

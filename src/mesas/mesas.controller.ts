@@ -30,6 +30,11 @@ export class MesasController {
     return this.mesasService.findOne(+id);
   }
 
+  @Get(':id/pedidos')
+  findPedidosByMesa(@Param('id') id: string) {
+    return this.mesasService.findOne(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMesaDto: UpdateMesaDto) {
     return this.mesasService.update(+id, updateMesaDto);

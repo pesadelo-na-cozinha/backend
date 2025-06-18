@@ -3,6 +3,7 @@ import { Mesa } from 'src/mesas/entities/mesa.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -17,7 +18,11 @@ export class Pedido {
   @Column()
   data_hora: Date;
 
+  @Column()
+  mesa_id: number;
+
   @ManyToOne(() => Mesa, (mesa) => mesa.pedidos)
+  @JoinColumn({ name: 'mesa_id' })
   mesa: Mesa;
 
   @ManyToMany(() => Iten)
